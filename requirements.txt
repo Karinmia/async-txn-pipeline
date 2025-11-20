@@ -1,0 +1,9 @@
+aio-pika
+asyncio
+fastapi[standard]>=0.121.2,<0.122.0
+pydantic>=2.12.4,<3.0.0
+SQLAlchemy==2.0.44
+pydantic-settings
+python-dotenv
+pytest==9.0.1
+ruff==0.14.5
