@@ -1,5 +1,6 @@
 aio-pika
 asyncio
+asyncpg
 fastapi[standard]>=0.121.2,<0.122.0
 pydantic>=2.12.4,<3.0.0
 SQLAlchemy==2.0.44
