@@ -4,10 +4,14 @@ from enum import Enum
 
 from sqlalchemy import Float, String, TIMESTAMP
 from sqlalchemy.dialects.postgresql import JSONB, UUID
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.ext.asyncio import AsyncAttrs
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.sql import func
 
-from app.database import Base
+# from app.database import Base
+
+class Base(AsyncAttrs, DeclarativeBase):
+    pass
 
 
 class TransactionStatus(str, Enum):

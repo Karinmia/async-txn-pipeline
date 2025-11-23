@@ -8,7 +8,6 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
-from sqlalchemy.orm import declarative_base
 
 from app.config import get_settings
 
@@ -35,23 +34,12 @@ def get_engine(db_uri: str = settings.get_postgres_url()) -> AsyncEngine:
     return _engine
 
 
-# Create session factory from the engine
-# AsyncSessionLocal = async_sessionmaker(
-#     bind=get_engine(),
-#     class_=AsyncSession,
-#     expire_on_commit=False,
-#     autocommit=False,
-#     autoflush=False,
-# )
-
-
 @asynccontextmanager
 async def make_session(
     engine: AsyncEngine | None = None,
 ) -> AsyncGenerator[AsyncSession, None]:
     """Create async session context manager."""
-    # session_factory = AsyncSessionLocal
-    # if engine is not None:
+    
     session_factory = async_sessionmaker(
         bind=engine,
         class_=AsyncSession,
@@ -62,7 +50,3 @@ async def make_session(
     
     async with session_factory() as session:
         yield session
-
-
-# Base class for declarative models
-Base = declarative_base()
