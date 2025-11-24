@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:18-alpine
-    container_name: transaction_processor_db
+    container_name: txn_processor_db
     env_file:
       - .env
     environment:
@@ -18,11 +18,30 @@ services:
       timeout: 5s
       retries: 5
 
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: txn_processor_rabbitmq
+    env_file:
+      - .env
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    ports:
+      - "${RABBITMQ_PORT:-5672}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   api:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: transaction_processor_api
+    container_name: txn_processor_api
     env_file:
       - .env
     environment:
@@ -33,7 +52,10 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:
   postgres_data:
+  rabbitmq_data:
