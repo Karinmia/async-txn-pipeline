@@ -19,10 +19,13 @@ class Settings(BaseSettings):
     db_pool_size: int = 5
     db_max_overflow: int = 10
     db_echo: bool = False
-    # DB_ECHO = os.environ.get("DB_ECHO", "false").lower() == "true"
     
-    
-    # rabbitmq_url: str = "amqp://localhost:5672"
+    # RabbitMQ settings
+    rabbitmq_user: str = "transaction_user"
+    rabbitmq_password: str = "transaction_pwd"
+    rabbitmq_host: str = "localhost"
+    rabbitmq_port: int = 5672
+    rabbitmq_url: str | None = None
 
     class Config:
         env_file = ".env"
@@ -46,6 +49,18 @@ class Settings(BaseSettings):
         return (
             f"postgresql+asyncpg://{self.db_user}:{password}@"
             f"{self.db_host}:{self.db_port}/{self.db_name}"
+        )
+    
+    def get_rabbitmq_url(self) -> str:
+        """Get RabbitMQ AMQP URL, constructing from components if not provided."""
+        if self.rabbitmq_url:
+            return self.rabbitmq_url
+        
+        # Construct from components
+        password = quote_plus(self.rabbitmq_password)
+        return (
+            f"amqp://{self.rabbitmq_user}:{password}@"
+            f"{self.rabbitmq_host}:{self.rabbitmq_port}/"
         )
 
 
