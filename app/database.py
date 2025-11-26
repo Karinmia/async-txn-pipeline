@@ -13,7 +13,7 @@ from app.config import get_settings
 
 settings = get_settings()
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -39,7 +39,7 @@ async def make_session(
     engine: AsyncEngine | None = None,
 ) -> AsyncGenerator[AsyncSession, None]:
     """Create async session context manager."""
-    
+
     session_factory = async_sessionmaker(
         bind=engine,
         class_=AsyncSession,
@@ -47,6 +47,6 @@ async def make_session(
         autocommit=False,
         autoflush=False,
     )
-    
+
     async with session_factory() as session:
         yield session

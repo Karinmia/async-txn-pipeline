@@ -4,8 +4,8 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
-
 # ISO 4217 currency codes (common ones for validation)
+# fmt: off
 COMMON_CURRENCIES = {
     "USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "CNY", "INR", "BRL",
     "MXN", "SGD", "HKD", "NZD", "SEK", "NOK", "DKK", "PLN", "ZAR", "KRW"
@@ -182,4 +182,3 @@ EXAMPLE_TRANSACTION_MINIMAL = Transaction(
     merchant_id="merchant_abc",
     merchant_name="Simple Store"
 )
-

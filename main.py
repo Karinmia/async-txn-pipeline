@@ -9,7 +9,7 @@ from app.messaging.client import rmq_client
 
 async def setup_rabbitmq():
     await rmq_client.connect()
-        
+
     # Declare pipeline exchange
     await rmq_client.declare_exchange("pipeline", ExchangeType.DIRECT, durable=True)
 
@@ -25,24 +25,24 @@ async def setup_rabbitmq():
 
 def initialize_app() -> FastAPI:
     """Initialize the FastAPI application."""
-    
+
     @asynccontextmanager
     def lifespan():
         await setup_rabbitmq()
         yield
         await rmq_client.close()
-    
+
     _app = FastAPI(title="Transaction Processor")
-    
+
     _app.include_router(transactions.router)
-    
+
     return _app
 
 
 app = initialize_app()
 
 
-@app.get("/", tags=['general'])
-@app.get("/healthcheck", tags=['general'])
+@app.get("/", tags=["general"])
+@app.get("/healthcheck", tags=["general"])
 def health_check():
     return {"status": "alive"}
