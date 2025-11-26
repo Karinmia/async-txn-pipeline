@@ -4,13 +4,7 @@ import logging
 from typing import Optional
 
 import aio_pika
-from aio_pika import (
-    Message,
-    DeliveryMode,
-    RobustConnection,
-    RobustChannel,
-    ExchangeType
-)
+from aio_pika import Message, DeliveryMode, RobustConnection, RobustChannel, ExchangeType
 
 from app.config import get_settings
 
@@ -44,7 +38,7 @@ class RabbitMQClient:
 
             logger.debug("Connecting to RabbitMQ...")
             self._connection = await aio_pika.connect_robust(self.url)
-        
+
         logger.debug("Connected to RabbitMQ.")
 
         return self._connection
@@ -71,13 +65,13 @@ class RabbitMQClient:
         return self._channel
 
     async def declare_exchange(
-        self, name: str, exchange_type: ExchangeType = ExchangeType.DIRECT,
+        self,
+        name: str,
+        exchange_type: ExchangeType = ExchangeType.DIRECT,
         durable: bool = True,
     ):
         channel = await self.get_channel()
-        return await channel.declare_exchange(
-            name, exchange_type, durable=durable
-        )
+        return await channel.declare_exchange(name, exchange_type, durable=durable)
 
     async def declare_queue(
         self,
@@ -91,9 +85,7 @@ class RabbitMQClient:
             arguments["x-dead-letter-exchange"] = dead_letter_exchange
 
         channel = await self.get_channel()
-        return await channel.declare_queue(
-            name, durable=durable, arguments=arguments
-        )
+        return await channel.declare_queue(name, durable=durable, arguments=arguments)
 
     async def bind_queue(self, queue_name: str, exchange_name: str, routing_key: str):
         channel = await self.get_channel()
@@ -112,7 +104,7 @@ class RabbitMQClient:
         exchange = await channel.get_exchange(exchange_name)
 
         body = json.dumps(payload).encode("utf-8")
-        
+
         message = Message(
             body=body,
             content_type="application/json",
@@ -134,7 +126,5 @@ class RabbitMQClient:
 settings = get_settings()
 
 rmq_client = RabbitMQClient(
-    url=settings.get_rabbitmq_url,
-    prefetch_count=50,
-    publisher_confirms=True
+    url=settings.get_rabbitmq_url, prefetch_count=50, publisher_confirms=True
 )

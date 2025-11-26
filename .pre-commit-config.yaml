@@ -4,9 +4,6 @@ repos:
     rev: v0.14.5
     hooks:
       - id: ruff
-        # Ruff runs as a linter only; no auto-formatting.
-        # (Black is the dedicated formatter.)
-        stages: [commit]
 
   # Black — Formatter
   - repo: https://github.com/psf/black
@@ -14,7 +11,6 @@ repos:
     hooks:
       - id: black
         language_version: python3
-        stages: [commit]
 
   # Misc sanity checks
   - repo: https://github.com/pre-commit/pre-commit-hooks

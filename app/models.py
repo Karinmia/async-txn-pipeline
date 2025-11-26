@@ -8,7 +8,6 @@ from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.sql import func
 
-# from app.database import Base
 
 class Base(AsyncAttrs, DeclarativeBase):
     pass
@@ -16,7 +15,7 @@ class Base(AsyncAttrs, DeclarativeBase):
 
 class TransactionStatus(str, Enum):
     """Processing status of transaction in the system."""
-    
+
     RECEIVED = "RECEIVED"
     PENDING = "PENDING"
     APPROVED = "APPROVED"
@@ -26,7 +25,7 @@ class TransactionStatus(str, Enum):
 
 class TransactionStage(str, Enum):
     """Business stage in the processing pipeline."""
-    
+
     INGESTING = "INGESTING"
     RULES_CHECKING = "RULES_CHECKING"
     RISK_SCORING = "RISK_SCORING"
@@ -36,13 +35,13 @@ class TransactionStage(str, Enum):
 class Transaction(Base):
     """
     Transaction database model.
-    
+
     Stores transaction data with separate status and stage fields
     to track processing status and business pipeline stage independently.
     """
-    
+
     __tablename__ = "transactions"
-    
+
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         primary_key=True,
