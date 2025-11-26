@@ -121,6 +121,9 @@ venv.bak/
 # mkdocs documentation
 /site
 
+# Ruff
+.ruff_cache/
+
 # mypy
 .mypy_cache/
 .dmypy.json
@@ -164,4 +167,3 @@ Thumbs.db
 # Project specific
 .env.local
 .env.*.local
-

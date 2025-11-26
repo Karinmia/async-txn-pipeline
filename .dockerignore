@@ -48,3 +48,5 @@ Dockerfile
 .DS_Store
 *.log
 
+# Ruff
+.ruff_cache/
