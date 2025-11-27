@@ -46,6 +46,7 @@ services:
       - .env
     environment:
       POSTGRES_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}
+      RABBITMQ_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/
       PYTHONPATH: .
     ports:
       - "8000:8000"
@@ -54,6 +55,25 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+    restart: unless-stopped
+
+  ingest-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: txn_processor_ingest_worker
+    env_file:
+      - .env
+    environment:
+      POSTGRES_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}
+      RABBITMQ_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/
+      PYTHONPATH: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    command: ["python", "-m", "app.workers.ingest"]
     restart: unless-stopped
 
 volumes:
