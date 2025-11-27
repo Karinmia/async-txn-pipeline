@@ -36,6 +36,9 @@ extend-exclude = ["migrations", "app/schemas.py"]
 extend-select = ["E501"]
 # ignore = ["ISC", "F401"]
 
+[tool.ruff.lint.per-file-ignores]
+"app/messaging/client.py" = ["F403","F405"]
+
 [tool.ruff.format]
 indent-style = "space"
 quote-style = "double"

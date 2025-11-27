@@ -4,9 +4,10 @@ import logging
 from typing import Optional
 
 import aio_pika
-from aio_pika import Message, DeliveryMode, RobustConnection, RobustChannel, ExchangeType
+from aio_pika import DeliveryMode, ExchangeType, Message, RobustChannel, RobustConnection
 
 from app.config import get_settings
+from app.messaging.constants import *
 
 logger = logging.getLogger(__name__)
 
@@ -53,14 +54,11 @@ class RabbitMQClient:
             if self._channel and not self._channel.is_closed:
                 return self._channel
 
-            self._channel = await conn.channel()
+            # Enable publisher confirms (optional)
+            self._channel = await conn.channel(publisher_confirms=self.publisher_confirms)
 
             # Set prefetch (consumer backpressure)
             await self._channel.set_qos(prefetch_count=self.prefetch_count)
-
-            # Enable publisher confirms (optional)
-            if self.publisher_confirms:
-                await self._channel.set_confirms(True)
 
         return self._channel
 
@@ -95,9 +93,9 @@ class RabbitMQClient:
 
     async def publish(
         self,
-        exchange_name: str,
         routing_key: str,
         payload: dict,
+        exchange_name: str = DEFAULT_EXCHANGE_NAME,
         delivery_mode: DeliveryMode = DeliveryMode.PERSISTENT,
     ):
         channel = await self.get_channel()
@@ -121,10 +119,29 @@ class RabbitMQClient:
         if self._connection and not self._connection.is_closed:
             await self._connection.close()
 
+    async def initial_setup(self):
+        """
+        This method should be called on FastAPI app startup.
+        """
+
+        await self.connect()
+
+        # Declare pipeline exchange
+        await self.declare_exchange(DEFAULT_EXCHANGE_NAME, ExchangeType.DIRECT, durable=True)
+
+        # Declare queues for your stages
+        await self.declare_queue(INJEST_QUEUE)
+        await self.declare_queue(RULES_QUEUE)
+        await self.declare_queue(RISK_QUEUE)
+
+        await self.bind_queue(INJEST_QUEUE, DEFAULT_EXCHANGE_NAME, INJEST_ROUTING_KEY)
+        await self.bind_queue(RULES_QUEUE, DEFAULT_EXCHANGE_NAME, RULES_ROUTING_KEY)
+        await self.bind_queue(RISK_QUEUE, DEFAULT_EXCHANGE_NAME, RISK_ROUTING_KEY)
+
 
 # Create a single RabbitMQClient instance to reuse across FastAPI app
 settings = get_settings()
 
 rmq_client = RabbitMQClient(
-    url=settings.get_rabbitmq_url, prefetch_count=50, publisher_confirms=True
+    url=settings.get_rabbitmq_url(), prefetch_count=50, publisher_confirms=True
 )
