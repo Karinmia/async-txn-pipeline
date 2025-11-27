@@ -1,16 +1,15 @@
-import uuid
 import logging
+import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dependencies import get_db
-from app.models import (
-    Transaction as TransactionModel,
-    TransactionStage,
-    TransactionStatus,
-)
+from app.messaging.client import rmq_client
+from app.messaging.constants import INJEST_ROUTING_KEY
+from app.models import Transaction as TransactionModel
+from app.models import TransactionStage, TransactionStatus
 from app.schemas import Transaction
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s %(message)s")
@@ -66,6 +65,23 @@ async def create_transaction(
         logger.info(f"Transaction created {transaction_id = }")
 
         await db.flush()  # Flush to get any database-generated values
+
+        # Publish message to ingest queue with only the transaction id
+        try:
+            await rmq_client.publish(
+                routing_key=INJEST_ROUTING_KEY,
+                payload={"transaction_id": str(db_transaction.id)},
+            )
+            logger.info(
+                "Published transaction to ingest queue",
+                extra={"transaction_id": str(db_transaction.id)},
+            )
+        except Exception:
+            # For now we log the error but still return 201 so DB write is not rolled back
+            logger.exception(
+                "Failed to publish transaction to ingest queue",
+                extra={"transaction_id": str(db_transaction.id)},
+            )
 
         return {
             "id": str(db_transaction.id),
