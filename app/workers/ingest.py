@@ -57,6 +57,8 @@ async def main() -> None:
     Connects to RabbitMQ and starts consuming messages from the ingest queue.
     """
 
+    await ingest_rmq_client.initial_setup()
+
     # Ensure connection and channel are ready for this worker
     connection = await ingest_rmq_client.connect()
     logger.debug("Ingest worker :: connected to RabbitMQ")
