@@ -1,0 +1,20 @@
+[pytest]
+minversion = "9.0"
+addopts = ["-ra", "-q"]
+testpaths = [
+    "tests",
+    "integration",
+]
+
+# Add project root to Python path so pytest can find the 'app' module
+pythonpath = ["."]
+
+# Configure pytest-asyncio for async test support
+asyncio_mode = "auto"
+
+# Markers for organizing tests
+markers = [
+    "unit: Unit tests (no external dependencies)",
+    "integration: Integration tests (require database/external services)",
+    "slow: Tests that take a long time to run",
+]
