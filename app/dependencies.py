@@ -2,7 +2,7 @@ from collections.abc import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import make_session, get_engine
+from app.database import get_engine, make_session
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
@@ -19,5 +19,3 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
         except Exception:
             await session.rollback()
             raise
-        finally:
-            await session.close()
