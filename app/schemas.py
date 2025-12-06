@@ -2,7 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 # ISO 4217 currency codes (common ones for validation)
 # fmt: off
@@ -122,9 +122,8 @@ class Transaction(BaseModel):
         None,
         description="Additional flexible metadata for extensibility"
     )
-
-    class Config:
-        """Pydantic model configuration."""
+    
+    model_config = ConfigDict(
         json_schema_extra = {
             "example": {
                 "amount": "99.99",
@@ -148,6 +147,7 @@ class Transaction(BaseModel):
                 }
             }
         }
+    )
 
 
 # Example transaction data for testing and documentation

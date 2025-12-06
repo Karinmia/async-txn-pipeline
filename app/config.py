@@ -1,10 +1,16 @@
 from functools import lru_cache
 from urllib.parse import quote_plus
 
+from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
+    model_config = ConfigDict(
+        env_file=".env",
+        extra="ignore",
+    )
+
     app_name: str = "Transaction Processor"
 
     # Database settings
@@ -26,10 +32,6 @@ class Settings(BaseSettings):
     rabbitmq_host: str = "localhost"
     rabbitmq_port: int = 5672
     rabbitmq_url: str | None = None
-
-    class Config:
-        env_file = ".env"
-        extra = "ignore"
 
     def get_postgres_url(self) -> str:
         """Get PostgreSQL URL, constructing from components if not provided."""
