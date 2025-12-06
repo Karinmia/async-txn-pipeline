@@ -1,0 +1,22 @@
+services:
+  postgres-test:
+    image: postgres:18-alpine
+    container_name: txn_processor_test_db
+    environment:
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_pwd
+      POSTGRES_DB: txn_processor_test
+    ports:
+      - "5433:5432"  # Different port to avoid conflict with dev database
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test_user -d txn_processor_test"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    # No volumes - fresh database each time (or add volume for persistence)
+    # volumes:
+    #   - postgres_test_data:/var/lib/postgresql/data
+
+# Uncomment if you want to persist test data between runs
+# volumes:
+#   postgres_test_data:
