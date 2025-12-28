@@ -1,11 +1,20 @@
 import ipaddress
 from datetime import datetime, timezone
 from decimal import Decimal
+from enum import Enum
 from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from app.constants import ALLOWED_PAYMENT_METHODS, COMMON_CURRENCIES, KNOWN_CARD_BRANDS
+from app.constants import COMMON_CURRENCIES, KNOWN_CARD_BRANDS
+
+
+class PaymentMethod(str, Enum):
+    """Allowed payment methods in the system."""
+
+    CARD = "card"
+    PAYPAL = "paypal"
+    BANK_TRANSFER = "bank_transfer"
 
 
 class Transaction(BaseModel):
@@ -41,9 +50,9 @@ class Transaction(BaseModel):
     )
 
     # Payment Details
-    payment_method: Optional[str] = Field(
-        None,
-        description="Payment method (e.g., card, bank_transfer, wallet). ",
+    payment_method: PaymentMethod = Field(
+        ...,
+        description="Payment method (card, paypal, or bank_transfer).",
     )
     card_last_4: Optional[str] = Field(
         None,
@@ -89,7 +98,7 @@ class Transaction(BaseModel):
                 "merchant_id": "merchant_12345",
                 "merchant_name": "eBooks Store",
                 "merchant_country": "US",
-                "payment_method": "card",
+                "payment_method": PaymentMethod.CARD.value,
                 "card_last_4": "4242",
                 "card_brand": "visa",
                 "ip_address": "192.168.1.100",
@@ -177,21 +186,6 @@ class Transaction(BaseModel):
         except ValueError:
             raise ValueError(f"ip_address must be a valid IPv4 or IPv6 address, got: {v}")
 
-    @field_validator("payment_method")
-    @classmethod
-    def validate_payment_method(cls, v: Optional[str]) -> Optional[str]:
-        """
-        Validate payment method is in allowed list.
-        Used in: INGEST STAGE
-        """
-        if v is None:
-            return v
-
-        method_lower = v.lower()
-        if method_lower not in ALLOWED_PAYMENT_METHODS:
-            raise ValueError(f"payment_method must be one of {ALLOWED_PAYMENT_METHODS}, got: {v}")
-        return method_lower
-
     @field_validator("card_brand")
     @classmethod
     def validate_card_brand(cls, v: Optional[str]) -> Optional[str]:
@@ -217,7 +211,7 @@ EXAMPLE_TRANSACTION = Transaction(
     merchant_id="merchant_12345",
     merchant_name="eBooks Store",
     merchant_country="US",
-    payment_method="card",
+    payment_method=PaymentMethod.CARD,
     card_last_4="4242",
     card_brand="visa",
     ip_address="192.168.1.100",
@@ -236,4 +230,5 @@ EXAMPLE_TRANSACTION_MINIMAL = Transaction(
     user_id="user_123",
     merchant_id="merchant_abc",
     merchant_name="Simple Store",
+    payment_method=PaymentMethod.BANK_TRANSFER,
 )

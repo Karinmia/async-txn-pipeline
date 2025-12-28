@@ -22,8 +22,5 @@ COMMON_CURRENCIES = (
     "KRW",
 )
 
-# Payment methods allowed in the system
-ALLOWED_PAYMENT_METHODS = {"card", "bank_transfer", "wallet", "cash"}
-
 # Known card brands for validation
 KNOWN_CARD_BRANDS = {"visa", "mastercard", "amex", "discover", "jcb", "diners"}
