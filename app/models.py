@@ -1,10 +1,11 @@
 import uuid
 from datetime import datetime
 from enum import Enum
+from typing import Self
 
 from sqlalchemy import TIMESTAMP, Float, String
 from sqlalchemy.dialects.postgresql import JSONB, UUID
-from sqlalchemy.ext.asyncio import AsyncAttrs
+from sqlalchemy.ext.asyncio import AsyncAttrs, AsyncSession
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.sql import func
 
@@ -79,3 +80,9 @@ class Transaction(Base):
         onupdate=func.now(),
         nullable=False,
     )
+
+    @classmethod
+    async def get_by_id(cls, session: AsyncSession, transaction_id: uuid.UUID | str) -> Self | None:
+        if isinstance(transaction_id, str):
+            transaction_id = uuid.UUID(transaction_id)
+        return await session.get(cls, transaction_id)
