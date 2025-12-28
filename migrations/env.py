@@ -19,6 +19,7 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 from app.models import Base  # noqa
+
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
@@ -34,14 +35,10 @@ def get_sync_url() -> str:
     # Convert postgresql+asyncpg:// to postgresql+psycopg://
     # or postgresql:// (psycopg is the default sync driver)
     if async_url.startswith("postgresql+asyncpg://"):
-        return async_url.replace(
-            "postgresql+asyncpg://", "postgresql+psycopg://", 1
-        )
+        return async_url.replace("postgresql+asyncpg://", "postgresql+psycopg://", 1)
     elif async_url.startswith("postgresql://"):
         # Already sync format, but ensure we use psycopg
-        return async_url.replace(
-            "postgresql://", "postgresql+psycopg://", 1
-        )
+        return async_url.replace("postgresql://", "postgresql+psycopg://", 1)
     return async_url
 
 
@@ -86,9 +83,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()
